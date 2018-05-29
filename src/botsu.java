@@ -7,6 +7,7 @@ import java.awt.event.*;
 public class botsu
 {
 	public static Robot DT;
+	
 	public static void main(String [] args) throws AWTException, InterruptedException
 	{
 		DT = new Robot();
@@ -27,7 +28,6 @@ public class botsu
 		vector current = start.copy();
 		vector cease = new vector(x, y);
 		vector diff = vector.sub(cease, start);
-		// diff.mult(SPEED);
 		diff.div(smoothness);
 		for(int i = 0; i < smoothness; i++){
 			current.add(diff);
@@ -40,7 +40,6 @@ public class botsu
 		vector start = new vector(getMousePos());
 		vector current = start.copy();
 		vector diff = vector.sub(cease, start);
-		// diff.mult(SPEED);
 		diff.div(smoothness);
 		for(int i = 0; i < smoothness; i++){
 			current.add(diff);
