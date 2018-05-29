@@ -3,31 +3,38 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
-public class botsu
+public class Botsu
 {
 	public static Robot DT;
-	
+	public static DVector position;
+	public static DVector velocity;
+
 	public static void main(String [] args) throws AWTException, InterruptedException
 	{
 		DT = new Robot();
 
-		vector goal = new vector(900, 1005);
+		position = new DVector(getMousePos());
+		velocity = new DVector(0, 0);
 
-		System.out.println("Goal:\n" + goal);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-		smoothMove(goal, (int)(vector.dist(new vector(getMousePos()), goal) * 10));
-		vector currentPos = new vector(getMousePos());
-		System.out.println("End:\n" + currentPos);
+		for (int i = 0; i < 10; i++){
+			DVector goal = new DVector(Math.random() * screenSize.getWidth(), Math.random() * screenSize.getHeight());
 
+			System.out.println("Goal:\n" + goal);
+
+			steerMove(goal, 13, 0.1f, 12, 0.001f);
+			DVector currentPos = new DVector(getMousePos());
+			System.out.println("End:\n" + currentPos);
+		}
 	}
 
 	public static void smoothMove(int x, int y, int smoothness)
 	{
-		vector start = new vector(getMousePos());
-		vector current = start.copy();
-		vector cease = new vector(x, y);
-		vector diff = vector.sub(cease, start);
+		DVector start = new DVector(getMousePos());
+		DVector current = start.copy();
+		DVector cease = new DVector(x, y);
+		DVector diff = DVector.sub(cease, start);
 		diff.div(smoothness);
 		for(int i = 0; i < smoothness; i++){
 			current.add(diff);
@@ -35,17 +42,53 @@ public class botsu
 		}
 	}
 
-	public static void smoothMove(vector cease, int smoothness)
+	public static void smoothMove(DVector cease, int smoothness)
 	{
-		vector start = new vector(getMousePos());
-		vector current = start.copy();
-		vector diff = vector.sub(cease, start);
+		DVector start = new DVector(getMousePos());
+		DVector current = start.copy();
+		DVector diff = DVector.sub(cease, start);
 		diff.div(smoothness);
 		for(int i = 0; i < smoothness; i++){
 			current.add(diff);
 			DT.mouseMove((int)current.x(),(int)current.y());
+		}
+	}
+
+	public static void steerMove(DVector target, float radius, float max_speed, float slowing_distance, float max_force) {
+		DVector target_offset, desired_velocity, steering, acceleration;
+		float distance, ramped_speed, clipped_speed;
+		while(DVector.dist(position, target) > radius){
+			target_offset = DVector.sub(target, position);
+			distance = target_offset.r();
+			ramped_speed = max_speed * (distance / slowing_distance);
+			clipped_speed = Math.min(ramped_speed, max_speed);
+			desired_velocity = DVector.mult(target_offset, clipped_speed / distance);
+			steering = DVector.sub(desired_velocity, velocity);
+			acceleration = steering.copy();
+			acceleration.truncate(max_force);
+			velocity.add(acceleration);
+			if(random() < 0.003 * max_speed) velocity.changeSpeed(random(-0.15f * max_speed, 0.1f * max_speed));
+			velocity.truncate(max_speed);
+			position.add(velocity);
+			if(random() < 0.3 * max_speed) position.add(DVector.random(1.5f * max_speed));
+			DT.mouseMove((int)position.x(),(int)position.y());
 		}
 	}
 
 	public static Point getMousePos(){ return MouseInfo.getPointerInfo().getLocation();	}
+
+	public final static float random(){
+		return (float)Math.random();
+	}
+
+	public final static float random(float high){
+		return high * (float)Math.random();
+	}
+
+	public final static float random(float low, float high){
+		float temp = low < high ? high : low;
+		low = low < high ? low : high;
+		high = temp;
+		return (high - low) * (float)Math.random() + low;
+	}
 }
