@@ -6,27 +6,47 @@ import java.awt.event.*;
 
 public class botsu
 {
-	//Robot DT = new Robot();
+	public static Robot DT;
 	public static void main(String [] args) throws AWTException, InterruptedException
 	{
-		Robot DT = new Robot();
+		DT = new Robot();
 
-		smoothMove(0,0,DT);
-		smoothMove(900,1005,DT);
-		Point currentPos = MouseInfo.getPointerInfo().getLocation();
-		double xPos = currentPos.getX();
-		double yPos = currentPos.getY();
-		System.out.print(xPos + " " + yPos);
-		//DT.mouseMove(0,0);
-		//DT.mousePress(InputEvent.BUTTON1_MASK);
-		//DT.mouseMove(200,200);
-		//DT.mouseRelease(InputEvent.BUTTON1_MASK);
+		vector goal = new vector(900, 1005);
+
+		System.out.println("Goal:\n" + goal);
+
+		smoothMove(goal, (int)(vector.dist(new vector(getMousePos()), goal) * 10));
+		vector currentPos = new vector(getMousePos());
+		System.out.println("End:\n" + currentPos);
 
 	}
 
-	public static void smoothMove(int x, int y, Robot DT)
+	public static void smoothMove(int x, int y, int smoothness)
 	{
-		// int distance = 
-		DT.mouseMove(x,y);
+		vector start = new vector(getMousePos());
+		vector current = start.copy();
+		vector cease = new vector(x, y);
+		vector diff = vector.sub(cease, start);
+		// diff.mult(SPEED);
+		diff.div(smoothness);
+		for(int i = 0; i < smoothness; i++){
+			current.add(diff);
+			DT.mouseMove((int)current.x(),(int)current.y());
+		}
 	}
+
+	public static void smoothMove(vector cease, int smoothness)
+	{
+		vector start = new vector(getMousePos());
+		vector current = start.copy();
+		vector diff = vector.sub(cease, start);
+		// diff.mult(SPEED);
+		diff.div(smoothness);
+		for(int i = 0; i < smoothness; i++){
+			current.add(diff);
+			DT.mouseMove((int)current.x(),(int)current.y());
+		}
+	}
+
+	public static Point getMousePos(){ return MouseInfo.getPointerInfo().getLocation();	}
 }
