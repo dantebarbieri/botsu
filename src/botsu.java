@@ -67,7 +67,7 @@ public class Botsu
 			acceleration = steering.copy();
 			acceleration.truncate(max_force);
 			velocity.add(acceleration);
-			if(random() < 0.003 * max_speed) velocity.changeSpeed(random(-0.15f * max_speed, 0.1f * max_speed));
+			if(random() < 0.003 * max_speed) velocity.incrementMagnitude(random(-0.15f * max_speed, 0.1f * max_speed));
 			velocity.truncate(max_speed);
 			position.add(velocity);
 			if(random() < 0.3 * max_speed) position.add(DVector.random(1.5f * max_speed));
